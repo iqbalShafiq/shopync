@@ -324,6 +324,51 @@ const productRoute = new Elysia({ prefix: "/product" })
 				imageUrl: t.Optional(t.String()),
 			}),
 		},
+	)
+	.delete(
+		"/:id",
+		async ({ params }) => {
+			const id = params.id;
+			return await productService.delete(id);
+		},
+		{
+			detail: {
+				tags: ["Product"],
+				description: "Delete a product",
+				responses: {
+					200: {
+						description: "Success",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										message: { type: "string" },
+									},
+								},
+							},
+						},
+					},
+					404: {
+						description: "Product not found",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										errorCode: { type: "string" },
+										message: { type: "string" },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			params: t.Object({
+				id: t.String(),
+			}),
+		},
 	);
 
 export default productRoute;
