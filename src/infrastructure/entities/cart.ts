@@ -15,7 +15,7 @@ export type DeleteItem = {
 export interface ICart {
 	getByUserId: (userId: string) => Promise<Cart | null | Failure>;
 	createCart: (userId: string) => Promise<Cart | Failure>;
-	addItem: (request: UpsertItem) => Promise<unknown>;
+	addItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	updateItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	removeItem: (request: DeleteItem) => Promise<unknown | Failure>;
 }

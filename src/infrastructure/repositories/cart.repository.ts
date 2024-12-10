@@ -21,14 +21,56 @@ export class CartRepository implements ICart {
 		});
 	}
 
-	addItem(request: UpsertItem): Promise<unknown> {
+	addItem(request: UpsertItem): Promise<unknown | Failure> {
 		const { cartId, productId, quantity } = request;
-		return prisma.cartProduct.create({
-			data: {
-				cartId,
-				productId,
-				quantity,
-			},
+		return prisma.$transaction(async (prisma) => {
+			const existingItem = await prisma.cartProduct.findUnique({
+				where: {
+					cartId_productId: {
+						cartId,
+						productId,
+					},
+				},
+			});
+
+			if (!existingItem) {
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
+
+			const product = await prisma.product.findUnique({
+				where: { id: productId },
+			});
+
+			if (!product) {
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
+
+			const quantityDifference = quantity - existingItem.quantity;
+
+			if (quantityDifference > product.quantity) {
+				return {
+					errorCode: ErrorCode.BAD_REQUEST,
+					message: "Insufficient product quantity",
+				};
+			}
+
+			await prisma.cartProduct.update({
+				where: {
+					cartId_productId: {
+						cartId,
+						productId,
+					},
+				},
+				data: {
+					quantity,
+				},
+			});
 		});
 	}
 
