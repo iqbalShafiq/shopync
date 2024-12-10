@@ -218,15 +218,16 @@ const productRoute = new Elysia({ prefix: "/product" })
 		},
 	)
 	.patch(
-		"/",
-		async ({ body, seller, set }) => {
+		"/:id",
+		async ({ params, body, seller, set }) => {
+			const { id } = params;
 			const product = {
 				...body,
 				imageUrl: body.imageUrl || null,
 				userId: (seller as User).id,
 			};
+			const result = await productService.update(id, product);
 
-			const result = await productService.update(body.id, product);
 			if (hasErrorResult(result)) {
 				set.status = 404;
 			}
@@ -286,6 +287,9 @@ const productRoute = new Elysia({ prefix: "/product" })
 					},
 				},
 			},
+			params: t.Object({
+				id: t.String(),
+			}),
 			body: t.Object({
 				id: t.String(),
 				name: t.String(),
@@ -301,6 +305,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 		async ({ params, set }) => {
 			const id = params.id;
 			const result = await productService.delete(id);
+
 			if (hasErrorResult(result)) {
 				set.status = 404;
 			}
