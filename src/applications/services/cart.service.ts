@@ -12,18 +12,16 @@ export class CartService {
 
 	async addItem(userId: string, request: UpsertItem) {
 		let cart = await this.cartRepository.getByUserId(userId);
-		if (!cart) {
-			cart = await this.cartRepository.createCart(userId);
-		}
+		if (!cart) cart = await this.cartRepository.createCart(userId);
 
-		await this.cartRepository.addItem({
+		return this.cartRepository.addItem({
 			...request,
 			cartId: (cart as Cart).id,
 		});
 	}
 
 	async updateItem(request: UpsertItem) {
-		await this.cartRepository.updateItem(request);
+		return this.cartRepository.updateItem(request);
 	}
 
 	async removeItem(request: UpsertItem) {

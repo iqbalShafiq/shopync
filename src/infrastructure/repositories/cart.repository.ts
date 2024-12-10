@@ -24,22 +24,6 @@ export class CartRepository implements ICart {
 	addItem(request: UpsertItem): Promise<unknown | Failure> {
 		const { cartId, productId, quantity } = request;
 		return prisma.$transaction(async (prisma) => {
-			const existingItem = await prisma.cartProduct.findUnique({
-				where: {
-					cartId_productId: {
-						cartId,
-						productId,
-					},
-				},
-			});
-
-			if (!existingItem) {
-				return {
-					errorCode: ErrorCode.NOT_FOUND,
-					message: "Product not found",
-				};
-			}
-
 			const product = await prisma.product.findUnique({
 				where: { id: productId },
 			});
@@ -51,16 +35,45 @@ export class CartRepository implements ICart {
 				};
 			}
 
-			const quantityDifference = quantity - existingItem.quantity;
-
-			if (quantityDifference > product.quantity) {
+			if (quantity > product.quantity) {
 				return {
 					errorCode: ErrorCode.BAD_REQUEST,
 					message: "Insufficient product quantity",
 				};
 			}
 
-			await prisma.cartProduct.update({
+			await prisma.cartProduct.create({
+				data: {
+					cartId,
+					productId,
+					quantity,
+				},
+			});
+		});
+	}
+
+	async updateItem(request: UpsertItem): Promise<unknown | Failure> {
+		const { cartId, productId, quantity } = request;
+		return prisma.$transaction(async (prisma) => {
+			const product = await prisma.product.findUnique({
+				where: { id: productId },
+			});
+
+			if (!product) {
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
+
+			if (quantity > product.quantity) {
+				return {
+					errorCode: ErrorCode.BAD_REQUEST,
+					message: "Insufficient product quantity",
+				};
+			}
+
+			const result = prisma.cartProduct.update({
 				where: {
 					cartId_productId: {
 						cartId,
@@ -71,31 +84,16 @@ export class CartRepository implements ICart {
 					quantity,
 				},
 			});
+
+			if (!result) {
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
+
+			return result;
 		});
-	}
-
-	async updateItem(request: UpsertItem): Promise<unknown | Failure> {
-		const { cartId, productId, quantity } = request;
-		const result = prisma.cartProduct.update({
-			where: {
-				cartId_productId: {
-					cartId,
-					productId,
-				},
-			},
-			data: {
-				quantity,
-			},
-		});
-
-		if (!result) {
-			return {
-				errorCode: ErrorCode.NOT_FOUND,
-				message: "Product not found",
-			};
-		}
-
-		return result;
 	}
 
 	async removeItem(request: DeleteItem): Promise<unknown | Failure> {

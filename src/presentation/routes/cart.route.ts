@@ -49,11 +49,16 @@ const cartRoute = new Elysia({ prefix: "/cart" })
 	.post(
 		"/",
 		async ({ body, user, set }) => {
-			await cartService.addItem((user as User).id, {
+			const result = await cartService.addItem((user as User).id, {
 				cartId: body.cartId,
 				productId: body.productId,
 				quantity: body.quantity,
 			});
+
+			if (hasErrorResult(result)) {
+				set.status = result.errorCode.valueOf();
+				return result;
+			}
 
 			set.status = 201;
 			return;
@@ -90,7 +95,7 @@ const cartRoute = new Elysia({ prefix: "/cart" })
 			});
 
 			if (hasErrorResult(result)) {
-				set.status = 404;
+				set.status = result.errorCode.valueOf();
 				return result;
 			}
 

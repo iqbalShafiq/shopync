@@ -56,18 +56,28 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const cartId = query.cartId;
 
 			if (userId) {
-				return await productService.getByUserId(userId);
+				const result = await productService.getByUserId(userId);
+				return {
+					data: result,
+				};
 			}
 
 			if (cartId) {
-				return await productService.getByCartId(cartId);
+				const result = await productService.getByCartId(cartId);
+				return {
+					data: result,
+				};
 			}
 
-			return await productService.getAll({
+			const result = await productService.getAll({
 				limit,
 				page,
 				search,
 			});
+
+			return {
+				data: result,
+			};
 		},
 		{
 			detail: {
@@ -125,7 +135,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 				};
 			}
 
-			return result;
+			return { data: result };
 		},
 		{
 			detail: {
@@ -181,7 +191,8 @@ const productRoute = new Elysia({ prefix: "/product" })
 			};
 
 			set.status = 201;
-			return await productService.create(product);
+			const result = await productService.create(product);
+			return { data: result };
 		},
 		{
 			detail: {
@@ -232,7 +243,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 				set.status = 404;
 			}
 
-			return result;
+			return { data: result };
 		},
 		{
 			detail: {
@@ -310,7 +321,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 				set.status = 404;
 			}
 
-			return result;
+			return { data: result };
 		},
 		{
 			detail: {
