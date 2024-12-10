@@ -1,9 +1,14 @@
-# Elysia with Bun runtime
+# Shopync API with Elysia
 
 ## Getting Started
-To get started with this template, simply paste this command into your terminal:
+Before you start, you need to do the following:
+- Install the dependencies run:
 ```bash
-bun create elysia ./elysia-example
+bun i
+```
+- Then you need to run prisma migrate to create the database schema:
+```bash
+bunx prisma migrate dev
 ```
 
 ## Development
