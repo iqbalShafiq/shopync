@@ -1,15 +1,29 @@
 {
-  "name": "shopync",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "elysia": "latest"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "shopync",
+	"version": "1.0.50",
+	"scripts": {
+		"format": "bunx biome format src/ --fix",
+		"lint": "bunx biome lint src/",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch src/index.ts",
+		"prepare": "husky"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@elysiajs/bearer": "^1.1.2",
+		"@elysiajs/jwt": "^1.1.1",
+		"@elysiajs/swagger": "^1.1.6",
+		"@prisma/client": "^6.0.1",
+		"@types/bcrypt": "^5.0.2",
+		"bcrypt": "^5.1.1",
+		"elysia": "latest",
+		"inversify": "^6.1.6",
+		"prisma": "^6.0.1",
+		"reflect-metadata": "^0.2.2"
+	},
+	"devDependencies": {
+		"@types/reflect-metadata": "^0.1.0",
+		"bun-types": "latest"
+	},
+	"module": "src/index.js"
 }
