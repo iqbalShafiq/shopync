@@ -7,6 +7,7 @@ import type {
 } from "../entities/product";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
+import { getUpdatedProps } from "../utils/getUpdatedProps";
 import { prisma } from "../utils/prisma";
 
 @injectable()
@@ -66,11 +67,12 @@ export class ProductRepository implements IProduct {
 
 	async update(id: string, product: UpsertProduct): Promise<Product | Failure> {
 		try {
+			const updatedProps = getUpdatedProps(product);
 			return prisma.product.update({
 				where: {
 					id,
 				},
-				data: product,
+				data: updatedProps,
 			});
 		} catch (error) {
 			if (
