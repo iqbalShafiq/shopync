@@ -50,7 +50,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 		"/",
 		async ({ query }) => {
 			const limit = Number.parseInt(query.limit || "10");
-			const page = Number.parseInt(query.page || "1");
+			const page = Number.parseInt(query.page || "0");
 			const search = query.search || "";
 			const userId = query.userId;
 			const cartId = query.cartId;
@@ -127,9 +127,12 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const id = params.id;
 			const result = await productService.getById(id);
 
-			if (hasErrorResult(result)) {
-				set.status = result.errorCode.valueOf();
-				return result;
+			if (result === null) {
+				set.status = 404;
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
 			}
 
 			return { data: result };

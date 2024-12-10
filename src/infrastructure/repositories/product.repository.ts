@@ -23,13 +23,11 @@ export class ProductRepository implements IProduct {
 						{
 							name: {
 								contains: search,
-								mode: "insensitive",
 							},
 						},
 						{
 							description: {
 								contains: search,
-								mode: "insensitive",
 							},
 						},
 					],
