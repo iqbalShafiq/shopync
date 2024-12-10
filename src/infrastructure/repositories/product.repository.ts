@@ -59,6 +59,18 @@ export class ProductRepository implements IProduct {
 		});
 	}
 
+	getByCartId(cartId: string): Promise<Product[] | null> {
+		return prisma.product.findMany({
+			where: {
+				carts: {
+					some: {
+						cartId,
+					},
+				},
+			},
+		});
+	}
+
 	create(product: UpsertProduct): Promise<Product> {
 		return prisma.product.create({
 			data: product,

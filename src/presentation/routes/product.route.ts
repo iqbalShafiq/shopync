@@ -6,6 +6,7 @@ import type { ProductService } from "../../applications/services/product.service
 import { container } from "../../infrastructure/ioc/container";
 import { TYPES } from "../../infrastructure/ioc/types";
 import ErrorCode from "../../infrastructure/utils/errorCode";
+import { hasErrorResult } from "../../infrastructure/utils/failure";
 
 const productService = container.get<ProductService>(TYPES.ProductService);
 
@@ -51,6 +52,16 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const limit = Number.parseInt(query.limit || "10");
 			const page = Number.parseInt(query.page || "1");
 			const search = query.search || "";
+			const userId = query.userId;
+			const cartId = query.cartId;
+
+			if (userId) {
+				return await productService.getByUserId(userId);
+			}
+
+			if (cartId) {
+				return await productService.getByCartId(cartId);
+			}
 
 			return await productService.getAll({
 				limit,
@@ -61,7 +72,7 @@ const productRoute = new Elysia({ prefix: "/product" })
 		{
 			detail: {
 				tags: ["Product"],
-				description: "Get all product",
+				description: "Get products",
 				responses: {
 					200: {
 						description: "Success",
@@ -95,14 +106,26 @@ const productRoute = new Elysia({ prefix: "/product" })
 				limit: t.Optional(t.String()),
 				page: t.Optional(t.String()),
 				search: t.Optional(t.String()),
+				userId: t.Optional(t.String()),
+				cartId: t.Optional(t.String()),
 			}),
 		},
 	)
 	.get(
 		"/:id",
-		async ({ params }) => {
+		async ({ params, set }) => {
 			const id = params.id;
-			return await productService.getById(id);
+			const result = await productService.getById(id);
+
+			if (hasErrorResult(result)) {
+				set.status = 404;
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
+
+			return result;
 		},
 		{
 			detail: {
@@ -148,73 +171,16 @@ const productRoute = new Elysia({ prefix: "/product" })
 			}),
 		},
 	)
-	.get(
-		"/user/:userId",
-		async ({ params }) => {
-			const userId = params.userId;
-			return await productService.getByUserId(userId);
-		},
-		{
-			detail: {
-				tags: ["Product"],
-				description: "Get product by user id",
-				responses: {
-					200: {
-						description: "Success",
-						content: {
-							"application/json": {
-								schema: {
-									type: "object",
-									properties: {
-										data: {
-											type: "array",
-											items: {
-												type: "object",
-												properties: {
-													id: { type: "number" },
-													name: { type: "string" },
-													description: { type: "string" },
-													price: { type: "number" },
-													quantity: { type: "number" },
-													userId: { type: "string" },
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-					404: {
-						description: "Product not found",
-						content: {
-							"application/json": {
-								schema: {
-									type: "object",
-									properties: {
-										errorCode: { type: "string" },
-										message: { type: "string" },
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			params: t.Object({
-				userId: t.String(),
-			}),
-		},
-	)
 	.post(
 		"/",
-		async ({ body, seller }) => {
+		async ({ body, seller, set }) => {
 			const product = {
 				...body,
 				imageUrl: body.imageUrl || null,
 				userId: (seller as User).id,
 			};
 
+			set.status = 201;
 			return await productService.create(product);
 		},
 		{
@@ -222,8 +188,8 @@ const productRoute = new Elysia({ prefix: "/product" })
 				tags: ["Product"],
 				description: "Create a product",
 				responses: {
-					200: {
-						description: "Success",
+					201: {
+						description: "Created",
 						content: {
 							"application/json": {
 								schema: {
@@ -253,14 +219,19 @@ const productRoute = new Elysia({ prefix: "/product" })
 	)
 	.patch(
 		"/",
-		async ({ body, seller }) => {
+		async ({ body, seller, set }) => {
 			const product = {
 				...body,
 				imageUrl: body.imageUrl || null,
 				userId: (seller as User).id,
 			};
 
-			return await productService.update(body.id, product);
+			const result = await productService.update(body.id, product);
+			if (hasErrorResult(result)) {
+				set.status = 404;
+			}
+
+			return result;
 		},
 		{
 			detail: {
@@ -327,9 +298,14 @@ const productRoute = new Elysia({ prefix: "/product" })
 	)
 	.delete(
 		"/:id",
-		async ({ params }) => {
+		async ({ params, set }) => {
 			const id = params.id;
-			return await productService.delete(id);
+			const result = await productService.delete(id);
+			if (hasErrorResult(result)) {
+				set.status = 404;
+			}
+
+			return result;
 		},
 		{
 			detail: {

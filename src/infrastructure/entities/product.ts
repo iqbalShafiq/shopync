@@ -20,6 +20,7 @@ export interface IProduct {
 	getAll: (params: ProductQueryParams) => Promise<Product[] | Failure>;
 	getById: (id: string) => Promise<Product | null>;
 	getByUserId: (userId: string) => Promise<Product[] | null>;
+	getByCartId: (cartId: string) => Promise<Product[] | null>;
 	create: (product: UpsertProduct) => Promise<Product>;
 	update: (id: string, product: UpsertProduct) => Promise<Product | Failure>;
 	delete: (id: string) => Promise<unknown | Failure>;

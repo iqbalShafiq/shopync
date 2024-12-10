@@ -25,6 +25,10 @@ export class ProductService {
 		return this.productRepository.getByUserId(userId);
 	}
 
+	async getByCartId(cartId: string) {
+		return this.productRepository.getByCartId(cartId);
+	}
+
 	async create(product: UpsertProduct) {
 		return this.productRepository.create(product);
 	}

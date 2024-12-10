@@ -3,4 +3,6 @@ export const TYPES = {
 	AuthService: Symbol.for("AuthService"),
 	ProductRepository: Symbol.for("ProductRepository"),
 	ProductService: Symbol.for("ProductService"),
+	CartRepository: Symbol.for("CartRepository"),
+	CartService: Symbol.for("CartService"),
 };
