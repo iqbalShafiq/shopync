@@ -1,18 +1,26 @@
 import type { Product } from "@prisma/client";
 import type { Failure } from "../utils/failure";
 
+export type ProductQueryParams = {
+	search?: string;
+	limit?: number;
+	page?: number;
+};
+
 export type UpsertProduct = {
 	name: string;
 	price: number;
+	quantity: number;
+	userId: string;
 	description: string;
 	imageUrl: string | null;
 };
 
 export interface IProduct {
-	getAll: () => Promise<Product[] | Failure>;
-	getById: (id: string) => Promise<Product | Failure>;
-	getByUserId: (userId: string) => Promise<Product[] | Failure>;
-	create: (product: UpsertProduct) => Promise<Product | Failure>;
+	getAll: (params: ProductQueryParams) => Promise<Product[] | Failure>;
+	getById: (id: string) => Promise<Product | null>;
+	getByUserId: (userId: string) => Promise<Product[] | null>;
+	create: (product: UpsertProduct) => Promise<Product>;
 	update: (id: string, product: UpsertProduct) => Promise<Product | Failure>;
-	delete: (id: string) => Promise<Product | Failure>;
+	delete: (id: string) => Promise<unknown | Failure>;
 }

@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import "reflect-metadata";
 import swagger from "@elysiajs/swagger";
 import authRoute from "./presentation/routes/auth.route";
+import productRoute from "./presentation/routes/product.route";
 
 const app = new Elysia()
 	.use(
@@ -10,6 +11,7 @@ const app = new Elysia()
 		}),
 	)
 	.use(authRoute)
+	.use(productRoute)
 	.listen(3000);
 
 console.log(
