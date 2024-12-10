@@ -152,7 +152,7 @@ const cartRoute = new Elysia({ prefix: "/cart" })
 			});
 
 			if (hasErrorResult(result)) {
-				set.status = 404;
+				set.status = result.errorCode.valueOf();
 				return result;
 			}
 

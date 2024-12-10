@@ -128,11 +128,8 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const result = await productService.getById(id);
 
 			if (hasErrorResult(result)) {
-				set.status = 404;
-				return {
-					errorCode: ErrorCode.NOT_FOUND,
-					message: "Product not found",
-				};
+				set.status = result.errorCode.valueOf();
+				return result;
 			}
 
 			return { data: result };
@@ -240,7 +237,8 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const result = await productService.update(id, product);
 
 			if (hasErrorResult(result)) {
-				set.status = 404;
+				set.status = result.errorCode.valueOf();
+				return result;
 			}
 
 			return { data: result };
@@ -318,7 +316,8 @@ const productRoute = new Elysia({ prefix: "/product" })
 			const result = await productService.delete(id);
 
 			if (hasErrorResult(result)) {
-				set.status = 404;
+				set.status = result.errorCode.valueOf();
+				return result;
 			}
 
 			return { data: result };
