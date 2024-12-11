@@ -14,6 +14,10 @@ export class AuthService {
 		private authRepository: IAuth,
 	) {}
 
+	async profile(email: string) {
+		return this.authRepository.profile(email);
+	}
+
 	async register(request: Register) {
 		const saltRounds = Number.parseInt(process.env.SALT_ROUNDS || "10");
 		const hashedPassword = await bcrypt.hash(request.password, saltRounds);

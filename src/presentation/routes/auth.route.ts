@@ -1,4 +1,5 @@
 import jwt from "@elysiajs/jwt";
+import type { User } from "@prisma/client";
 import { Elysia, t } from "elysia";
 import type { AuthService } from "../../applications/services/auth.service";
 import { container } from "../../infrastructure/ioc/container";
@@ -17,6 +18,80 @@ const authRoute = new Elysia({ prefix: "/auth" })
 			name: "jwt",
 			secret: process.env.JWT_SECRET || "secret",
 		}),
+	)
+	.get(
+		"/me",
+		async ({ jwt, set, cookie: { auth } }) => {
+			const user = await jwt.verify(auth.value);
+			console.log(user);
+			if (!user) {
+				set.status = 401;
+				return {
+					errorCode: ErrorCode.UNAUTHORIZED,
+					message: "Unauthorized",
+				};
+			}
+
+			const result = await authService.profile((user as User).email);
+			if (hasErrorResult(result)) {
+				const failureResult = result as Failure;
+				set.status = failureResult.errorCode.valueOf();
+				return failureResult;
+			}
+
+			return {
+				data: user,
+			};
+		},
+		{
+			detail: {
+				tags: ["Auth"],
+				description: "Get user",
+				responses: {
+					401: {
+						description: "Unauthorized",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										message: {
+											type: "string",
+										},
+									},
+								},
+							},
+						},
+					},
+					200: {
+						description: "Success",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										data: {
+											type: "object",
+											properties: {
+												id: {
+													type: "number",
+												},
+												email: {
+													type: "string",
+												},
+												name: {
+													type: "string",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	)
 	.post(
 		"/register",

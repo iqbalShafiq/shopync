@@ -14,7 +14,7 @@ const app = new Elysia()
 	.use(authRoute)
 	.use(productRoute)
 	.use(cartRoute)
-	.listen(3000);
+	.listen(8000);
 
 console.log(
 	`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

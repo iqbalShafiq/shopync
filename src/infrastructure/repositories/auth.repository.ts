@@ -7,6 +7,23 @@ import { prisma } from "../utils/prisma";
 
 @injectable()
 export class AuthRepository implements IAuth {
+	async profile(email: string): Promise<AuthResult | Failure> {
+		const user = await prisma.user.findUnique({
+			where: {
+				email,
+			},
+		});
+
+		if (!user) {
+			return {
+				errorCode: ErrorCode.NOT_FOUND,
+				message: "User not found",
+			};
+		}
+
+		return user;
+	}
+
 	async register(request: Register): Promise<AuthResult | Failure> {
 		const hasRegistered = await prisma.user.findUnique({
 			where: {

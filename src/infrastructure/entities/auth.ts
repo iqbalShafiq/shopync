@@ -15,6 +15,7 @@ export type Login = {
 export type AuthResult = Partial<User>;
 
 export interface IAuth {
+	profile: (email: string) => Promise<AuthResult | Failure>;
 	register: (request: Register) => Promise<AuthResult | Failure>;
 	login: (request: Login) => Promise<AuthResult | Failure>;
 }
