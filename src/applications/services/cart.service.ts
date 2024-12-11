@@ -1,7 +1,7 @@
-import type {Cart} from "@prisma/client";
-import {inject, injectable} from "inversify";
-import type {ICart, UpsertItem} from "../../infrastructure/entities/cart";
-import {TYPES} from "../../infrastructure/ioc/types";
+import type { Cart } from "@prisma/client";
+import { inject, injectable } from "inversify";
+import type { ICart, UpsertItem } from "../../infrastructure/entities/cart";
+import { TYPES } from "../../infrastructure/ioc/types";
 
 @injectable()
 export class CartService {
