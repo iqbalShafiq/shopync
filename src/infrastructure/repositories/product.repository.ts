@@ -12,7 +12,9 @@ import { prisma } from "../utils/prisma";
 
 @injectable()
 export class ProductRepository implements IProduct {
-	async getAll(params: ProductQueryParams): Promise<Failure | Product[]> {
+	async getAll(
+		params: ProductQueryParams,
+	): Promise<PaginatedResult<Product> | Failure> {
 		const { search, limit, page } = params;
 		const take = limit || 10;
 		const skip = (page || 0) * take;
@@ -34,11 +36,24 @@ export class ProductRepository implements IProduct {
 				}
 			: {};
 
-		return prisma.product.findMany({
+		const items = await prisma.product.findMany({
 			where,
 			take,
 			skip,
 		});
+
+		const total = await prisma.product.count({
+			where: {
+				name: {
+					contains: search,
+				},
+			},
+		});
+
+		return {
+			items,
+			total,
+		};
 	}
 
 	async getById(id: string): Promise<Product | null> {

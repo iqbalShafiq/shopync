@@ -17,7 +17,9 @@ export type UpsertProduct = {
 };
 
 export interface IProduct {
-	getAll: (params: ProductQueryParams) => Promise<Product[] | Failure>;
+	getAll: (
+		params: ProductQueryParams,
+	) => Promise<PaginatedResult<Product> | Failure>;
 	getById: (id: string) => Promise<Product | null>;
 	getByUserId: (userId: string) => Promise<Product[] | null>;
 	getByCartId: (cartId: string) => Promise<Product[] | null>;

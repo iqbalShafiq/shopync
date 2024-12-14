@@ -77,8 +77,18 @@ const productRoute = new Elysia({ prefix: "/products" })
 				search,
 			});
 
+			if (hasErrorResult(result)) {
+				return result;
+			}
+
 			return {
-				data: result,
+				data: result.items,
+				pagination: {
+					currentPage: page,
+					totalPages: Math.ceil(result.total / limit),
+					totalItems: result.total,
+					itemsPerPage: limit,
+				},
 			};
 		},
 		{
@@ -105,6 +115,15 @@ const productRoute = new Elysia({ prefix: "/products" })
 													quantity: { type: "number" },
 													userId: { type: "string" },
 												},
+											},
+										},
+										pagination: {
+											type: "object",
+											properties: {
+												currentPage: { type: "number" },
+												totalPages: { type: "number" },
+												totalItems: { type: "number" },
+												itemsPerPage: { type: "number" },
 											},
 										},
 									},
