@@ -10,7 +10,7 @@ import { hasErrorResult } from "../../infrastructure/utils/failure";
 
 const cartService = container.get<CartService>(TYPES.CartService);
 
-const cartRoute = new Elysia({ prefix: "/cart" })
+const cartRoute = new Elysia({ prefix: "/carts" })
 	.use(
 		jwt({
 			name: "jwt",
@@ -18,8 +18,10 @@ const cartRoute = new Elysia({ prefix: "/cart" })
 		}),
 	)
 	.use(bearer())
-	.derive(async ({ jwt, cookie: { auth } }) => {
-		const user = await jwt.verify(auth.value);
+	.derive(async ({ jwt, headers }) => {
+		const bearerToken = headers.authorization;
+		const authToken = bearerToken?.split(" ")[1];
+		const user = await jwt.verify(authToken);
 		return { user: user };
 	})
 	.onBeforeHandle(({ bearer, set, user }) => {
