@@ -61,6 +61,12 @@ const productRoute = new Elysia({ prefix: "/products" })
 				const result = await productService.getByUserId(userId);
 				return {
 					data: result,
+					pagination: {
+						currentPage: page,
+						totalPages: Math.ceil(result.total / limit),
+						totalItems: result.total,
+						itemsPerPage: limit,
+					},
 				};
 			}
 

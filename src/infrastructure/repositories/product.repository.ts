@@ -64,12 +64,25 @@ export class ProductRepository implements IProduct {
 		});
 	}
 
-	getByUserId(userId: string): Promise<Product[] | null> {
-		return prisma.product.findMany({
+	async getByUserId(
+		userId: string,
+	): Promise<PaginatedResult<Product | Failure>> {
+		const items = await prisma.product.findMany({
 			where: {
 				userId,
 			},
 		});
+
+		const total = await prisma.product.count({
+			where: {
+				userId,
+			},
+		});
+
+		return {
+			items,
+			total,
+		};
 	}
 
 	async getByCartId(cartId: string): Promise<Product[] | null> {

@@ -21,7 +21,7 @@ export interface IProduct {
 		params: ProductQueryParams,
 	) => Promise<PaginatedResult<Product> | Failure>;
 	getById: (id: string) => Promise<Product | null>;
-	getByUserId: (userId: string) => Promise<Product[] | null>;
+	getByUserId: (userId: string) => Promise<PaginatedResult<Product | Failure>>;
 	getByCartId: (cartId: string) => Promise<Product[] | null>;
 	create: (product: UpsertProduct) => Promise<Product>;
 	update: (id: string, product: UpsertProduct) => Promise<Product | Failure>;
