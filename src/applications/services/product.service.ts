@@ -5,6 +5,7 @@ import type {
 	UpsertProduct,
 } from "../../infrastructure/entities/product";
 import { TYPES } from "../../infrastructure/ioc/types";
+import type { Prisma } from "@prisma/client";
 
 @injectable()
 export class ProductService {
@@ -17,8 +18,8 @@ export class ProductService {
 		return this.productRepository.getAll(params);
 	}
 
-	async getById(id: string) {
-		return this.productRepository.getById(id);
+	async getById(id: string, select?: Prisma.UserSelect) {
+		return this.productRepository.getById(id, select);
 	}
 
 	async getByUserId(userId: string) {

@@ -4,6 +4,7 @@ import type {
 	IProduct,
 	ProductQueryParams,
 	UpsertProduct,
+	UserWithCount,
 } from "../entities/product";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
@@ -56,12 +57,30 @@ export class ProductRepository implements IProduct {
 		};
 	}
 
-	async getById(id: string): Promise<Product | null> {
-		return prisma.product.findUnique({
+	async getById(
+		id: string,
+		select?: Prisma.UserSelect,
+	): Promise<(Product & { user: UserWithCount }) | null> {
+		const product = await prisma.product.findUnique({
 			where: {
 				id,
 			},
+			include: {
+				user: { select: { ...select, _count: true, password: false } },
+			},
 		});
+
+		if (product?.user) {
+			const { _count, ...user } = product.user;
+			const userWithCount: UserWithCount = {
+				...user,
+				count: _count,
+			};
+
+			return { ...product, user: userWithCount };
+		}
+
+		return null;
 	}
 
 	async getByUserId(

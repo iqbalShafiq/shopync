@@ -1,4 +1,4 @@
-import type { Product } from "@prisma/client";
+import type { Prisma, Product, User } from "@prisma/client";
 import type { Failure } from "../utils/failure";
 
 export type ProductQueryParams = {
@@ -16,11 +16,21 @@ export type UpsertProduct = {
 	imageUrl: string | null;
 };
 
+export type UserWithCount = Omit<User, "password"> & {
+	count: {
+		products: number;
+		cart: number;
+	};
+};
+
 export interface IProduct {
 	getAll: (
 		params: ProductQueryParams,
 	) => Promise<PaginatedResult<Product> | Failure>;
-	getById: (id: string) => Promise<Product | null>;
+	getById: (
+		id: string,
+		select?: Prisma.UserSelect,
+	) => Promise<(Product & { user: UserWithCount }) | null>;
 	getByUserId: (userId: string) => Promise<PaginatedResult<Product | Failure>>;
 	getByCartId: (cartId: string) => Promise<Product[] | null>;
 	create: (product: UpsertProduct) => Promise<Product>;

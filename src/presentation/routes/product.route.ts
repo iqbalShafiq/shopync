@@ -152,7 +152,11 @@ const productRoute = new Elysia({ prefix: "/products" })
 		"/:id",
 		async ({ params, set }) => {
 			const id = params.id;
-			const result = await productService.getById(id);
+			const result = await productService.getById(id, {
+				id: true,
+				name: true,
+				password: false,
+			});
 
 			if (result === null) {
 				set.status = 404;
