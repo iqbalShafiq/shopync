@@ -1,8 +1,11 @@
+import { promises as fs } from "node:fs";
+import { join } from "node:path";
 import bearer from "@elysiajs/bearer";
 import jwt from "@elysiajs/jwt";
 import staticPlugin from "@elysiajs/static";
 import type { User } from "@prisma/client";
 import { Elysia, t } from "elysia";
+import { nanoid } from "nanoid";
 import type { ProductService } from "../../applications/services/product.service";
 import { container } from "../../infrastructure/ioc/container";
 import { TYPES } from "../../infrastructure/ioc/types";
@@ -219,11 +222,33 @@ const productRoute = new Elysia({ prefix: "/products" })
 	.post(
 		"/",
 		async ({ body, seller, set }) => {
+			let imageUrl = null;
+
+			if (body.image) {
+				// Generate unique filename
+				const ext = body.image.name.split(".").pop();
+				const filename = `${nanoid()}.${ext}`;
+
+				// Create directory if not exists
+				const uploadDir = join(process.cwd(), "public", "uploads");
+				await fs.mkdir(uploadDir, { recursive: true });
+
+				// Save file to disk
+				const filepath = join(uploadDir, filename);
+				const arrayBuffer = await body.image.arrayBuffer();
+				await Bun.write(filepath, new Uint8Array(arrayBuffer));
+
+				imageUrl = `/uploads/${filename}`;
+			}
+
 			const product = {
 				...body,
-				imageUrl: body.imageUrl || null,
+				imageUrl,
 				userId: (seller as User).id,
+				price: Number(body.price),
+				quantity: Number(body.quantity),
 			};
+			product.image = undefined;
 
 			set.status = 201;
 			const result = await productService.create(product);
@@ -257,9 +282,9 @@ const productRoute = new Elysia({ prefix: "/products" })
 			body: t.Object({
 				name: t.String(),
 				description: t.String(),
-				price: t.Number(),
-				quantity: t.Number(),
-				imageUrl: t.Optional(t.String()),
+				price: t.String(),
+				quantity: t.String(),
+				image: t.Optional(t.File()),
 			}),
 		},
 	)

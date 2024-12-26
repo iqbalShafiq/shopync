@@ -19,6 +19,7 @@
 		"bcrypt": "^5.1.1",
 		"elysia": "latest",
 		"inversify": "^6.1.6",
+		"nanoid": "^5.0.9",
 		"prisma": "^6.0.1",
 		"reflect-metadata": "^0.2.2"
 	},
