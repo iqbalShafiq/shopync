@@ -292,11 +292,44 @@ const productRoute = new Elysia({ prefix: "/products" })
 		"/:id",
 		async ({ params, body, seller, set }) => {
 			const { id } = params;
+
+			let imageUrl = body.imageUrl;
+
+			if (body.image) {
+				// remove old image
+				if (imageUrl) {
+					const uploadDir = join(process.cwd(), "public", "uploads");
+					const filename = imageUrl.split("/").pop();
+
+					if (filename) {
+						const filepath = join(uploadDir, filename);
+						await fs.unlink(filepath);
+					}
+				}
+
+				// Generate unique filename
+				const ext = body.image.name.split(".").pop();
+				const newFileName = `${nanoid()}.${ext}`;
+
+				// Create directory if not exists
+				const uploadDir = join(process.cwd(), "public", "uploads");
+				await fs.mkdir(uploadDir, { recursive: true });
+
+				// Save file to disk
+				const newFilepath = join(uploadDir, newFileName);
+				const arrayBuffer = await body.image.arrayBuffer();
+				await Bun.write(newFilepath, new Uint8Array(arrayBuffer));
+
+				imageUrl = `/uploads/${newFileName}`;
+			}
+
 			const product = {
 				...body,
-				imageUrl: body.imageUrl || null,
+				imageUrl: imageUrl || null,
 				userId: (seller as User).id,
 			};
+			product.image = undefined;
+
 			const result = await productService.update(id, product);
 
 			if (hasErrorResult(result)) {
@@ -369,6 +402,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				price: t.Number(),
 				quantity: t.Number(),
 				imageUrl: t.Optional(t.String()),
+				image: t.Optional(t.File()),
 			}),
 		},
 	)
