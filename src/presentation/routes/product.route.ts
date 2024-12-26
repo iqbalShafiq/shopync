@@ -325,6 +325,8 @@ const productRoute = new Elysia({ prefix: "/products" })
 
 			const product = {
 				...body,
+				price: Number(body.price),
+				quantity: Number(body.quantity),
 				imageUrl: imageUrl || null,
 				userId: (seller as User).id,
 			};
@@ -399,8 +401,8 @@ const productRoute = new Elysia({ prefix: "/products" })
 				id: t.String(),
 				name: t.String(),
 				description: t.String(),
-				price: t.Number(),
-				quantity: t.Number(),
+				price: t.String(),
+				quantity: t.String(),
 				imageUrl: t.Optional(t.String()),
 				image: t.Optional(t.File()),
 			}),
