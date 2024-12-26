@@ -295,7 +295,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 
 			let imageUrl = body.imageUrl;
 
-			if (body.image) {
+			if (body.image?.name) {
 				// remove old image
 				if (imageUrl) {
 					const uploadDir = join(process.cwd(), "public", "uploads");
