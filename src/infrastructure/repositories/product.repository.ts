@@ -16,26 +16,30 @@ export class ProductRepository implements IProduct {
 	async getAll(
 		params: ProductQueryParams,
 	): Promise<PaginatedResult<Product> | Failure> {
-		const { search, limit, page } = params;
+		const { sellerId, search, limit, page } = params;
 		const take = limit || 10;
 		const skip = (page || 0) * take;
 
-		const where = search
-			? {
-					OR: [
-						{
-							name: {
-								contains: search,
-							},
-						},
-						{
-							description: {
-								contains: search,
-							},
-						},
-					],
-				}
-			: {};
+		console.log(`sellerId: ${sellerId}`);
+		const excludeSeller = {
+			AND: [
+				{
+					userId: {
+						not: sellerId,
+					},
+				},
+			],
+		};
+
+		const where = {
+			...excludeSeller,
+			name: {
+				contains: search,
+			},
+			description: {
+				contains: search,
+			},
+		};
 
 		const items = await prisma.product.findMany({
 			where,

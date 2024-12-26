@@ -2,6 +2,7 @@ import type { Prisma, Product, User } from "@prisma/client";
 import type { Failure } from "../utils/failure";
 
 export type ProductQueryParams = {
+	sellerId: string;
 	search?: string;
 	limit?: number;
 	page?: number;

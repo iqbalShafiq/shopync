@@ -1,5 +1,6 @@
 import bearer from "@elysiajs/bearer";
 import jwt from "@elysiajs/jwt";
+import staticPlugin from "@elysiajs/static";
 import type { User } from "@prisma/client";
 import { Elysia, t } from "elysia";
 import type { ProductService } from "../../applications/services/product.service";
@@ -11,6 +12,7 @@ import { hasErrorResult } from "../../infrastructure/utils/failure";
 const productService = container.get<ProductService>(TYPES.ProductService);
 
 const productRoute = new Elysia({ prefix: "/products" })
+	.use(staticPlugin())
 	.use(
 		jwt({
 			name: "jwt",
@@ -50,7 +52,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 	})
 	.get(
 		"/",
-		async ({ query }) => {
+		async ({ query, seller }) => {
 			const limit = Number.parseInt(query.limit || "10");
 			const page = Number.parseInt(query.page || "0");
 			const search = query.search || "";
@@ -77,7 +79,9 @@ const productRoute = new Elysia({ prefix: "/products" })
 				};
 			}
 
+			const sellerId = (seller as User).id;
 			const result = await productService.getAll({
+				sellerId,
 				limit,
 				page,
 				search,
