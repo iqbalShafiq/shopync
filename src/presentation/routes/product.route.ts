@@ -412,6 +412,19 @@ const productRoute = new Elysia({ prefix: "/products" })
 		"/:id",
 		async ({ params, set }) => {
 			const id = params.id;
+			const product = await productService.getById(id);
+			const imageUrl = product?.imageUrl;
+
+			// remove old image
+			if (imageUrl) {
+				const uploadDir = join(process.cwd(), "public", "uploads");
+				const filename = imageUrl.split("/").pop();
+
+				if (filename) {
+					const filepath = join(uploadDir, filename);
+					await fs.unlink(filepath);
+				}
+			}
 			const result = await productService.delete(id);
 
 			if (hasErrorResult(result)) {
