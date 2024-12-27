@@ -14,39 +14,32 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  email    String    @unique
-  name     String
-  password String
-  cart     Cart[]
-  products Product[]
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String
+  password       String
+  products       Product[]
+  productInCarts ProductInCart[]
 }
 
 model Product {
-  id          String        @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
   description String
   price       Float
   quantity    Int
   imageUrl    String?
   userId      String
-  user        User          @relation(fields: [userId], references: [id])
-  carts       CartProduct[]
+  user        User            @relation(fields: [userId], references: [id])
+  carts       ProductInCart[]
 }
 
-model Cart {
-  id       String        @id @default(cuid())
-  userId   String        @unique
-  user     User          @relation(fields: [userId], references: [id])
-  products CartProduct[]
-}
-
-model CartProduct {
-  cartId    String
+model ProductInCart {
+  userId    String
   productId String
   quantity  Int
-  cart      Cart    @relation(fields: [cartId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
   product   Product @relation(fields: [productId], references: [id])
 
-  @@id([cartId, productId])
+  @@id([userId, productId])
 }

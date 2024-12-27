@@ -48,11 +48,52 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 
 		console.log(user);
 	})
+	.get(
+		"/",
+		async ({ user, set }) => {
+			const result = await cartService.getByUserId((user as User).id);
+
+			if (result === null) {
+				set.status = 404;
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "You haven't added any product to cart",
+				};
+			}
+
+			return { data: result };
+		},
+		{
+			detail: {
+				tags: ["Cart"],
+				description: "Get cart by user ID",
+				responses: {
+					200: {
+						description: "Success",
+					},
+					404: {
+						description: "Cart not found",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										errorCode: { type: "string" },
+										message: { type: "string" },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	)
 	.post(
 		"/",
 		async ({ body, user, set }) => {
-			const result = await cartService.addItem((user as User).id, {
-				cartId: body.cartId,
+			const result = await cartService.addItem({
+				userId: (user as User).id,
 				productId: body.productId,
 				quantity: body.quantity,
 			});
@@ -67,8 +108,8 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 		},
 		{
 			beforeHandle: async ({ body, set }) => {
-				const { cartId, productId, quantity } = body;
-				if (!cartId || !productId || !quantity) {
+				const { productId, quantity } = body;
+				if (!productId || !quantity) {
 					set.status = 400;
 					return {
 						errorCode: ErrorCode.BAD_REQUEST,
@@ -81,7 +122,6 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				description: "Create cart",
 			},
 			body: t.Object({
-				cartId: t.String(),
 				productId: t.String(),
 				quantity: t.Number(),
 			}),
@@ -89,9 +129,9 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 	)
 	.patch(
 		"/",
-		async ({ body, set }) => {
+		async ({ body, user, set }) => {
 			const result = await cartService.updateItem({
-				cartId: body.cartId,
+				userId: (user as User).id,
 				productId: body.productId,
 				quantity: body.quantity,
 			});
@@ -105,8 +145,8 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 		},
 		{
 			beforeHandle: async ({ body, set }) => {
-				const { cartId, productId, quantity } = body;
-				if (!cartId || !productId || !quantity) {
+				const { productId, quantity } = body;
+				if (!productId || !quantity) {
 					set.status = 400;
 					return {
 						errorCode: ErrorCode.BAD_REQUEST,
@@ -138,7 +178,6 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				},
 			},
 			body: t.Object({
-				cartId: t.String(),
 				productId: t.String(),
 				quantity: t.Number(),
 			}),
@@ -146,11 +185,10 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 	)
 	.delete(
 		"/",
-		async ({ body, set }) => {
+		async ({ body, user, set }) => {
 			const result = await cartService.removeItem({
-				cartId: body.cartId,
+				userId: (user as User).id,
 				productId: body.productId,
-				quantity: body.quantity,
 			});
 
 			if (hasErrorResult(result)) {
@@ -162,8 +200,8 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 		},
 		{
 			beforeHandle: async ({ body, set }) => {
-				const { cartId, productId } = body;
-				if (!cartId || !productId) {
+				const { productId } = body;
+				if (!productId) {
 					set.status = 400;
 					return {
 						errorCode: ErrorCode.BAD_REQUEST,
@@ -195,7 +233,6 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				},
 			},
 			body: t.Object({
-				cartId: t.String(),
 				productId: t.String(),
 				quantity: t.Number(),
 			}),

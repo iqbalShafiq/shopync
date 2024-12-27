@@ -1,28 +1,25 @@
-import type { Cart } from "@prisma/client";
-import type { DeleteItem, ICart, UpsertItem } from "../entities/cart";
+import type { Product } from "@prisma/client";
+import type { ICart, RemoveItem, UpsertItem } from "../entities/cart";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
 import { prisma } from "../utils/prisma";
 
 export class CartRepository implements ICart {
-	getByUserId(userId: string): Promise<Failure | Cart | null> {
-		return prisma.cart.findUnique({
+	async getByUserId(userId: string): Promise<Failure | Product[] | null> {
+		const result = await prisma.productInCart.findMany({
 			where: {
 				userId,
 			},
-		});
-	}
-
-	createCart(userId: string): Promise<Failure | Cart> {
-		return prisma.cart.create({
-			data: {
-				userId,
+			include: {
+				product: true,
 			},
 		});
+
+		return result.map((item) => item.product);
 	}
 
 	addItem(request: UpsertItem): Promise<unknown | Failure> {
-		const { cartId, productId, quantity } = request;
+		const { userId, productId, quantity } = request;
 		return prisma.$transaction(async (prisma) => {
 			const product = await prisma.product.findUnique({
 				where: { id: productId },
@@ -42,9 +39,9 @@ export class CartRepository implements ICart {
 				};
 			}
 
-			await prisma.cartProduct.create({
+			await prisma.productInCart.create({
 				data: {
-					cartId,
+					userId,
 					productId,
 					quantity,
 				},
@@ -53,7 +50,7 @@ export class CartRepository implements ICart {
 	}
 
 	async updateItem(request: UpsertItem): Promise<unknown | Failure> {
-		const { cartId, productId, quantity } = request;
+		const { userId, productId, quantity } = request;
 		return prisma.$transaction(async (prisma) => {
 			const product = await prisma.product.findUnique({
 				where: { id: productId },
@@ -73,10 +70,10 @@ export class CartRepository implements ICart {
 				};
 			}
 
-			const result = prisma.cartProduct.update({
+			const result = prisma.productInCart.update({
 				where: {
-					cartId_productId: {
-						cartId,
+					userId_productId: {
+						userId,
 						productId,
 					},
 				},
@@ -96,12 +93,12 @@ export class CartRepository implements ICart {
 		});
 	}
 
-	async removeItem(request: DeleteItem): Promise<unknown | Failure> {
-		const { cartId, productId } = request;
-		const cartProduct = await prisma.cartProduct.delete({
+	async removeItem(request: RemoveItem): Promise<unknown | Failure> {
+		const { userId, productId } = request;
+		const cartProduct = await prisma.productInCart.delete({
 			where: {
-				cartId_productId: {
-					cartId,
+				userId_productId: {
+					userId,
 					productId,
 				},
 			},

@@ -1,6 +1,10 @@
 import type { Cart } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import type { ICart, UpsertItem } from "../../infrastructure/entities/cart";
+import type {
+	ICart,
+	RemoveItem,
+	UpsertItem,
+} from "../../infrastructure/entities/cart";
 import { TYPES } from "../../infrastructure/ioc/types";
 
 @injectable()
@@ -10,21 +14,19 @@ export class CartService {
 		private cartRepository: ICart,
 	) {}
 
-	async addItem(userId: string, request: UpsertItem) {
-		let cart = await this.cartRepository.getByUserId(userId);
-		if (!cart) cart = await this.cartRepository.createCart(userId);
+	async getByUserId(userId: string) {
+		return await this.cartRepository.getByUserId(userId);
+	}
 
-		return this.cartRepository.addItem({
-			...request,
-			cartId: (cart as Cart).id,
-		});
+	async addItem(request: UpsertItem) {
+		return this.cartRepository.addItem(request);
 	}
 
 	async updateItem(request: UpsertItem) {
 		return this.cartRepository.updateItem(request);
 	}
 
-	async removeItem(request: UpsertItem) {
+	async removeItem(request: RemoveItem) {
 		await this.cartRepository.removeItem(request);
 	}
 }
