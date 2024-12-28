@@ -12,8 +12,13 @@ export type RemoveItem = {
 	productId: string;
 };
 
+export type ProductInCart = {
+	quantity: number;
+	product: Product;
+};
+
 export interface ICart {
-	getByUserId: (userId: string) => Promise<Product[] | null | Failure>;
+	getByUserId: (userId: string) => Promise<ProductInCart[] | null | Failure>;
 	addItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	updateItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	removeItem: (request: RemoveItem) => Promise<unknown | Failure>;

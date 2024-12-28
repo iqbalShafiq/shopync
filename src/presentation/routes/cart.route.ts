@@ -70,6 +70,28 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				responses: {
 					200: {
 						description: "Success",
+						content: {
+							"application/json": {
+								schema: {
+									type: "array",
+									items: {
+										type: "object",
+										properties: {
+											quantity: { type: "number" },
+											product: {
+												type: "object",
+												properties: {
+													id: { type: "string" },
+													name: { type: "string" },
+													price: { type: "number" },
+													quantity: { type: "number" },
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 					404: {
 						description: "Cart not found",

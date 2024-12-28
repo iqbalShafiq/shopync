@@ -1,11 +1,15 @@
-import type { Product } from "@prisma/client";
-import type { ICart, RemoveItem, UpsertItem } from "../entities/cart";
+import type {
+	ICart,
+	ProductInCart,
+	RemoveItem,
+	UpsertItem,
+} from "../entities/cart";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
 import { prisma } from "../utils/prisma";
 
 export class CartRepository implements ICart {
-	async getByUserId(userId: string): Promise<Failure | Product[] | null> {
+	async getByUserId(userId: string): Promise<Failure | ProductInCart[] | null> {
 		const result = await prisma.productInCart.findMany({
 			where: {
 				userId,
@@ -15,7 +19,10 @@ export class CartRepository implements ICart {
 			},
 		});
 
-		return result.map((item) => item.product);
+		return result.map((item) => ({
+			quantity: item.quantity,
+			product: item.product,
+		}));
 	}
 
 	addItem(request: UpsertItem): Promise<unknown | Failure> {
