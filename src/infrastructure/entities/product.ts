@@ -20,7 +20,7 @@ export type UpsertProduct = {
 export type UserWithCount = Omit<User, "password"> & {
 	count: {
 		products: number;
-		cart: number;
+		productInCarts: number;
 	};
 };
 
@@ -33,7 +33,6 @@ export interface IProduct {
 		select?: Prisma.UserSelect,
 	) => Promise<(Product & { user: UserWithCount }) | null>;
 	getByUserId: (userId: string) => Promise<PaginatedResult<Product | Failure>>;
-	getByCartId: (cartId: string) => Promise<Product[] | null>;
 	create: (product: UpsertProduct) => Promise<Product>;
 	update: (id: string, product: UpsertProduct) => Promise<Product | Failure>;
 	delete: (id: string) => Promise<unknown | Failure>;

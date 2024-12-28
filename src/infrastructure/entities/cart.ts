@@ -21,5 +21,4 @@ export interface ICart {
 	getByUserId: (userId: string) => Promise<ProductInCart[] | null | Failure>;
 	addItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	updateItem: (request: UpsertItem) => Promise<unknown | Failure>;
-	removeItem: (request: RemoveItem) => Promise<unknown | Failure>;
 }

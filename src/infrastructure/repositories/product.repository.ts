@@ -108,21 +108,6 @@ export class ProductRepository implements IProduct {
 		};
 	}
 
-	async getByCartId(cartId: string): Promise<Product[] | null> {
-		const cartProducts = await prisma.cartProduct.findMany({
-			where: {
-				cartId,
-			},
-			include: {
-				product: true,
-			},
-		});
-		return cartProducts.map((cp) => ({
-			...cp.product,
-			quantity: cp.quantity,
-		}));
-	}
-
 	create(product: UpsertProduct): Promise<Product> {
 		return prisma.product.create({
 			data: product,

@@ -77,6 +77,26 @@ export class CartRepository implements ICart {
 				};
 			}
 
+			if (quantity === 0) {
+				const result = prisma.productInCart.delete({
+					where: {
+						userId_productId: {
+							userId,
+							productId,
+						},
+					},
+				});
+
+				if (!result) {
+					return {
+						errorCode: ErrorCode.NOT_FOUND,
+						message: "Product not found",
+					};
+				}
+
+				return result;
+			}
+
 			const result = prisma.productInCart.update({
 				where: {
 					userId_productId: {
@@ -98,26 +118,5 @@ export class CartRepository implements ICart {
 
 			return result;
 		});
-	}
-
-	async removeItem(request: RemoveItem): Promise<unknown | Failure> {
-		const { userId, productId } = request;
-		const cartProduct = await prisma.productInCart.delete({
-			where: {
-				userId_productId: {
-					userId,
-					productId,
-				},
-			},
-		});
-
-		if (!cartProduct) {
-			return {
-				errorCode: ErrorCode.NOT_FOUND,
-				message: "Product not found",
-			};
-		}
-
-		return cartProduct;
 	}
 }

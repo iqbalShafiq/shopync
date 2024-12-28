@@ -23,15 +23,15 @@ model User {
 }
 
 model Product {
-  id          String          @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  quantity    Int
-  imageUrl    String?
-  userId      String
-  user        User            @relation(fields: [userId], references: [id])
-  carts       ProductInCart[]
+  id             String          @id @default(cuid())
+  name           String
+  description    String
+  price          Float
+  quantity       Int
+  imageUrl       String?
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  productInCarts ProductInCart[]
 }
 
 model ProductInCart {

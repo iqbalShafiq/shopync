@@ -204,61 +204,6 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				quantity: t.Number(),
 			}),
 		},
-	)
-	.delete(
-		"/",
-		async ({ body, user, set }) => {
-			const result = await cartService.removeItem({
-				userId: (user as User).id,
-				productId: body.productId,
-			});
-
-			if (hasErrorResult(result)) {
-				set.status = result.errorCode.valueOf();
-				return result;
-			}
-
-			return;
-		},
-		{
-			beforeHandle: async ({ body, set }) => {
-				const { productId } = body;
-				if (!productId) {
-					set.status = 400;
-					return {
-						errorCode: ErrorCode.BAD_REQUEST,
-						message: "Bad request",
-					};
-				}
-			},
-			detail: {
-				tags: ["Cart"],
-				description: "Delete cart",
-				responses: {
-					200: {
-						description: "Success",
-					},
-					404: {
-						description: "Cart not found",
-						content: {
-							"application/json": {
-								schema: {
-									type: "object",
-									properties: {
-										errorCode: { type: "string" },
-										message: { type: "string" },
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			body: t.Object({
-				productId: t.String(),
-				quantity: t.Number(),
-			}),
-		},
 	);
 
 export default cartRoute;
