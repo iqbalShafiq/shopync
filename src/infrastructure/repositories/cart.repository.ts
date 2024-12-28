@@ -1,9 +1,4 @@
-import type {
-	ICart,
-	ProductInCart,
-	RemoveItem,
-	UpsertItem,
-} from "../entities/cart";
+import type { ICart, ProductInCart, UpsertItem } from "../entities/cart";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
 import { prisma } from "../utils/prisma";
@@ -28,6 +23,19 @@ export class CartRepository implements ICart {
 	addItem(request: UpsertItem): Promise<unknown | Failure> {
 		const { userId, productId, quantity } = request;
 		return prisma.$transaction(async (prisma) => {
+			const productInCart = await prisma.productInCart.findUnique({
+				where: {
+					userId_productId: {
+						userId,
+						productId,
+					},
+				},
+			});
+
+			if (productInCart) {
+				return await this.updateItem(request);
+			}
+
 			const product = await prisma.product.findUnique({
 				where: { id: productId },
 			});

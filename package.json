@@ -14,13 +14,13 @@
 		"@elysiajs/jwt": "^1.1.1",
 		"@elysiajs/static": "^1.2.0",
 		"@elysiajs/swagger": "^1.1.6",
-		"@prisma/client": "^6.0.1",
+		"@prisma/client": "^6.1.0",
 		"@types/bcrypt": "^5.0.2",
 		"bcrypt": "^5.1.1",
 		"elysia": "latest",
 		"inversify": "^6.1.6",
 		"nanoid": "^5.0.9",
-		"prisma": "^6.0.1",
+		"prisma": "^6.1.0",
 		"reflect-metadata": "^0.2.2"
 	},
 	"devDependencies": {
