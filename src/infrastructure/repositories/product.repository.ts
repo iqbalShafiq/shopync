@@ -20,7 +20,6 @@ export class ProductRepository implements IProduct {
 		const take = limit || 10;
 		const skip = (page || 0) * take;
 
-		console.log(`sellerId: ${sellerId}`);
 		const excludeSeller = {
 			AND: [
 				{

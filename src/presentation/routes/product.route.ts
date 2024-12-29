@@ -50,8 +50,6 @@ const productRoute = new Elysia({ prefix: "/products" })
 				message: "Unauthorized",
 			};
 		}
-
-		console.log(seller);
 	})
 	.get(
 		"/",

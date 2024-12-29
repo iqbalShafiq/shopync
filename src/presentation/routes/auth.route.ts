@@ -25,7 +25,7 @@ const authRoute = new Elysia({ prefix: "/auth" })
 			const bearerToken = headers.authorization;
 			const authToken = bearerToken?.split(" ")[1];
 			const user = await jwt.verify(authToken);
-			console.log(user);
+
 			if (!user) {
 				set.status = 401;
 				return {

@@ -85,6 +85,7 @@ export class CartRepository implements ICart {
 				};
 			}
 
+			console.log(`Removing ${quantity} product ${productId} from cart`);
 			if (quantity === 0) {
 				const result = prisma.productInCart.delete({
 					where: {

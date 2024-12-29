@@ -45,8 +45,6 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				message: "Unauthorized",
 			};
 		}
-
-		console.log(user);
 	})
 	.get(
 		"/",
@@ -125,7 +123,7 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				return result;
 			}
 
-			set.status = 201;
+			set.status = 204;
 			return;
 		},
 		{
@@ -163,12 +161,13 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				return result;
 			}
 
+			set.status = 204;
 			return;
 		},
 		{
 			beforeHandle: async ({ body, set }) => {
 				const { productId, quantity } = body;
-				if (!productId || !quantity) {
+				if (!productId || quantity === undefined) {
 					set.status = 400;
 					return {
 						errorCode: ErrorCode.BAD_REQUEST,
