@@ -32,12 +32,18 @@ export class ProductRepository implements IProduct {
 
 		const where = {
 			...excludeSeller,
-			name: {
-				contains: search,
-			},
-			description: {
-				contains: search,
-			},
+			OR: [
+				{
+					name: {
+						contains: search,
+					},
+				},
+				{
+					description: {
+						contains: search,
+					},
+				},
+			],
 		};
 
 		const items = await prisma.product.findMany({
