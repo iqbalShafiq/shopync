@@ -33,7 +33,13 @@ export class CartRepository implements ICart {
 			});
 
 			if (productInCart) {
-				return await this.updateItem(request);
+				const totalItem = productInCart.quantity + quantity;
+				const updateRequest = {
+					userId,
+					productId,
+					quantity: totalItem,
+				};
+				return await this.updateItem(updateRequest);
 			}
 
 			const product = await prisma.product.findUnique({
