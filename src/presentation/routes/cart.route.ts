@@ -48,8 +48,12 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 	})
 	.get(
 		"/",
-		async ({ user, set }) => {
-			const result = await cartService.getByUserId((user as User).id);
+		async ({ query, user, set }) => {
+			const productId = query.productId as string | undefined;
+			const result = await cartService.getItems({
+				userId: (user as User).id,
+				productId,
+			});
 
 			if (result === null) {
 				set.status = 404;
@@ -106,6 +110,9 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 						},
 					},
 				},
+				query: t.Object({
+					productId: t.Optional(t.String()),
+				}),
 			},
 		},
 	)

@@ -1,14 +1,26 @@
-import type { ICart, ProductInCart, UpsertItem } from "../entities/cart";
+import type {
+	CartQueryParams,
+	ICart,
+	ProductInCart,
+	UpsertItem,
+} from "../entities/cart";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
 import { prisma } from "../utils/prisma";
 
 export class CartRepository implements ICart {
-	async getByUserId(userId: string): Promise<Failure | ProductInCart[] | null> {
+	async get(
+		params: CartQueryParams,
+	): Promise<Failure | ProductInCart[] | null> {
+		const { userId, productId } = params;
+		const whereClause: { userId: string; productId?: string } = { userId };
+
+		if (productId) {
+			whereClause.productId = productId;
+		}
+
 		const result = await prisma.productInCart.findMany({
-			where: {
-				userId,
-			},
+			where: whereClause,
 			include: {
 				product: true,
 			},

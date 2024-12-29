@@ -1,15 +1,15 @@
 import type { Product } from "@prisma/client";
 import type { Failure } from "../utils/failure";
 
+export type CartQueryParams = {
+	userId: string;
+	productId?: string;
+};
+
 export type UpsertItem = {
 	userId: string;
 	productId: string;
 	quantity: number;
-};
-
-export type RemoveItem = {
-	userId: string;
-	productId: string;
 };
 
 export type ProductInCart = {
@@ -18,7 +18,7 @@ export type ProductInCart = {
 };
 
 export interface ICart {
-	getByUserId: (userId: string) => Promise<ProductInCart[] | null | Failure>;
+	get: (params: CartQueryParams) => Promise<ProductInCart[] | null | Failure>;
 	addItem: (request: UpsertItem) => Promise<unknown | Failure>;
 	updateItem: (request: UpsertItem) => Promise<unknown | Failure>;
 }

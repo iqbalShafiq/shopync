@@ -1,5 +1,9 @@
 import { inject, injectable } from "inversify";
-import type { ICart, UpsertItem } from "../../infrastructure/entities/cart";
+import type {
+	CartQueryParams,
+	ICart,
+	UpsertItem,
+} from "../../infrastructure/entities/cart";
 import { TYPES } from "../../infrastructure/ioc/types";
 
 @injectable()
@@ -9,8 +13,8 @@ export class CartService {
 		private cartRepository: ICart,
 	) {}
 
-	async getByUserId(userId: string) {
-		return await this.cartRepository.getByUserId(userId);
+	async getItems(params: CartQueryParams) {
+		return await this.cartRepository.get(params);
 	}
 
 	async addItem(request: UpsertItem) {
