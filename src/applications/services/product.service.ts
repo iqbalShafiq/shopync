@@ -22,12 +22,8 @@ export class ProductService {
 		return this.productRepository.getById(id, select);
 	}
 
-	async getByUserId(userId: string) {
-		return this.productRepository.getByUserId(userId);
-	}
-
-	async getByCartId(cartId: string) {
-		return this.productRepository.getByCartId(cartId);
+	async getByUserId(params: ProductQueryParams) {
+		return this.productRepository.getByUserId(params);
 	}
 
 	async create(product: UpsertProduct) {

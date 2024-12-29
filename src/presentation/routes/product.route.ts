@@ -58,10 +58,16 @@ const productRoute = new Elysia({ prefix: "/products" })
 			const page = Number.parseInt(query.page || "0");
 			const search = query.search || "";
 			const userId = query.userId;
-			const cartId = query.cartId;
+			const excludedProductId = query.excludedProductId;
 
 			if (userId) {
-				const result = await productService.getByUserId(userId);
+				const result = await productService.getByUserId({
+					sellerId: userId,
+					limit,
+					page,
+					search,
+					excludedProductId,
+				});
 				return {
 					data: result.items,
 					pagination: {
@@ -70,13 +76,6 @@ const productRoute = new Elysia({ prefix: "/products" })
 						totalItems: result.total,
 						itemsPerPage: limit,
 					},
-				};
-			}
-
-			if (cartId) {
-				const result = await productService.getByCartId(cartId);
-				return {
-					data: result,
 				};
 			}
 
@@ -150,6 +149,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				search: t.Optional(t.String()),
 				userId: t.Optional(t.String()),
 				cartId: t.Optional(t.String()),
+				excludedProductId: t.Optional(t.String()),
 			}),
 		},
 	)

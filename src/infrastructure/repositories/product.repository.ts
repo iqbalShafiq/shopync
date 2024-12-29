@@ -20,18 +20,17 @@ export class ProductRepository implements IProduct {
 		const take = limit || 10;
 		const skip = (page || 0) * take;
 
-		const excludeSeller = {
-			AND: [
-				{
-					userId: {
-						not: sellerId,
-					},
+		const andClause = [];
+		if (sellerId) {
+			andClause.push({
+				userId: {
+					not: sellerId,
 				},
-			],
-		};
+			});
+		}
 
 		const where = {
-			...excludeSeller,
+			AND: andClause,
 			OR: [
 				{
 					name: {
@@ -93,18 +92,48 @@ export class ProductRepository implements IProduct {
 	}
 
 	async getByUserId(
-		userId: string,
+		params: ProductQueryParams,
 	): Promise<PaginatedResult<Product | Failure>> {
-		const items = await prisma.product.findMany({
-			where: {
-				userId,
+		const { sellerId, search, limit, page, excludedProductId } = params;
+		console.log(
+			`sellerId: ${sellerId} | excludedProductId: ${excludedProductId}`,
+		);
+
+		const andClause = [];
+		andClause.push({
+			userId: sellerId,
+		});
+		if (excludedProductId) {
+			andClause.push({
+				id: {
+					not: excludedProductId,
+				},
+			});
+		}
+
+		const orClause = [];
+		orClause.push({
+			name: {
+				contains: search,
+			},
+		});
+		orClause.push({
+			description: {
+				contains: search,
 			},
 		});
 
+		const whereClause = {
+			AND: andClause,
+			OR: orClause,
+		};
+
+		const items = await prisma.product.findMany({
+			where: whereClause,
+		});
+
 		const total = await prisma.product.count({
-			where: {
-				userId,
-			},
+			where: whereClause,
 		});
 
 		return {
