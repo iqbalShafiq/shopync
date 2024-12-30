@@ -123,6 +123,7 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 				userId: (user as User).id,
 				productId: body.productId,
 				quantity: body.quantity,
+				increment: body.increment,
 			});
 
 			if (hasErrorResult(result)) {
@@ -151,6 +152,7 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 			body: t.Object({
 				productId: t.String(),
 				quantity: t.Number(),
+				increment: t.Optional(t.Boolean()),
 			}),
 		},
 	);

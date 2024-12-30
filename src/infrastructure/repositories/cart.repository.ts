@@ -33,7 +33,7 @@ export class CartRepository implements ICart {
 	}
 
 	upsertItem(request: UpsertItem): Promise<unknown | Failure> {
-		const { userId, productId, quantity } = request;
+		const { userId, productId, quantity, increment } = request;
 		return prisma.$transaction(async (prisma) => {
 			// Check if product exists
 			const product = await prisma.product.findUnique({
@@ -50,6 +50,39 @@ export class CartRepository implements ICart {
 			// Remove from cart if quantity is 0
 			if (quantity === 0) {
 				return this.removeFromCart(userId, productId);
+			}
+
+			if (increment) {
+				const productInCart = await prisma.productInCart.findUnique({
+					where: {
+						userId_productId: {
+							userId,
+							productId,
+						},
+					},
+				});
+
+				if (productInCart) {
+					const newQuantity = productInCart.quantity + quantity;
+					if (newQuantity > product.quantity) {
+						return {
+							errorCode: ErrorCode.BAD_REQUEST,
+							message: `Cannot add ${quantity} items. Current stock is ${product.quantity}, and you already have ${productInCart?.quantity || 0} in your cart.`,
+						};
+					}
+
+					return prisma.productInCart.update({
+						where: {
+							userId_productId: {
+								userId,
+								productId,
+							},
+						},
+						data: {
+							quantity: newQuantity,
+						},
+					});
+				}
 			}
 
 			// Stock validation

@@ -10,6 +10,7 @@ export type UpsertItem = {
 	userId: string;
 	productId: string;
 	quantity: number;
+	increment?: boolean;
 };
 
 export type ProductInCart = {
