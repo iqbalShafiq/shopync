@@ -119,45 +119,7 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 	.post(
 		"/",
 		async ({ body, user, set }) => {
-			const result = await cartService.addItem({
-				userId: (user as User).id,
-				productId: body.productId,
-				quantity: body.quantity,
-			});
-
-			if (hasErrorResult(result)) {
-				set.status = result.errorCode.valueOf();
-				return result;
-			}
-
-			set.status = 204;
-			return;
-		},
-		{
-			beforeHandle: async ({ body, set }) => {
-				const { productId, quantity } = body;
-				if (!productId || !quantity) {
-					set.status = 400;
-					return {
-						errorCode: ErrorCode.BAD_REQUEST,
-						message: "Bad request",
-					};
-				}
-			},
-			detail: {
-				tags: ["Cart"],
-				description: "Create cart",
-			},
-			body: t.Object({
-				productId: t.String(),
-				quantity: t.Number(),
-			}),
-		},
-	)
-	.patch(
-		"/",
-		async ({ body, user, set }) => {
-			const result = await cartService.updateItem({
+			const result = await cartService.upsertItem({
 				userId: (user as User).id,
 				productId: body.productId,
 				quantity: body.quantity,
@@ -184,26 +146,7 @@ const cartRoute = new Elysia({ prefix: "/carts" })
 			},
 			detail: {
 				tags: ["Cart"],
-				description: "Update cart",
-				responses: {
-					200: {
-						description: "Success",
-					},
-					404: {
-						description: "Cart not found",
-						content: {
-							"application/json": {
-								schema: {
-									type: "object",
-									properties: {
-										errorCode: { type: "string" },
-										message: { type: "string" },
-									},
-								},
-							},
-						},
-					},
-				},
+				description: "Create cart",
 			},
 			body: t.Object({
 				productId: t.String(),

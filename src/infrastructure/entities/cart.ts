@@ -19,6 +19,5 @@ export type ProductInCart = {
 
 export interface ICart {
 	get: (params: CartQueryParams) => Promise<ProductInCart[] | null | Failure>;
-	addItem: (request: UpsertItem) => Promise<unknown | Failure>;
-	updateItem: (request: UpsertItem) => Promise<unknown | Failure>;
+	upsertItem: (request: UpsertItem) => Promise<unknown | Failure>;
 }

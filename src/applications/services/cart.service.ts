@@ -17,11 +17,7 @@ export class CartService {
 		return await this.cartRepository.get(params);
 	}
 
-	async addItem(request: UpsertItem) {
-		return this.cartRepository.addItem(request);
-	}
-
-	async updateItem(request: UpsertItem) {
-		return this.cartRepository.updateItem(request);
+	async upsertItem(request: UpsertItem) {
+		return this.cartRepository.upsertItem(request);
 	}
 }

@@ -32,28 +32,10 @@ export class CartRepository implements ICart {
 		}));
 	}
 
-	addItem(request: UpsertItem): Promise<unknown | Failure> {
+	upsertItem(request: UpsertItem): Promise<unknown | Failure> {
 		const { userId, productId, quantity } = request;
 		return prisma.$transaction(async (prisma) => {
-			const productInCart = await prisma.productInCart.findUnique({
-				where: {
-					userId_productId: {
-						userId,
-						productId,
-					},
-				},
-			});
-
-			if (productInCart) {
-				const totalItem = productInCart.quantity + quantity;
-				const updateRequest = {
-					userId,
-					productId,
-					quantity: totalItem,
-				};
-				return await this.updateItem(updateRequest);
-			}
-
+			// Check if product exists
 			const product = await prisma.product.findUnique({
 				where: { id: productId },
 			});
@@ -65,6 +47,12 @@ export class CartRepository implements ICart {
 				};
 			}
 
+			// Remove from cart if quantity is 0
+			if (quantity === 0) {
+				return this.removeFromCart(userId, productId);
+			}
+
+			// Stock validation
 			if (quantity > product.quantity) {
 				return {
 					errorCode: ErrorCode.BAD_REQUEST,
@@ -72,8 +60,18 @@ export class CartRepository implements ICart {
 				};
 			}
 
-			await prisma.productInCart.create({
-				data: {
+			// Upsert item to cart
+			return prisma.productInCart.upsert({
+				where: {
+					userId_productId: {
+						userId,
+						productId,
+					},
+				},
+				update: {
+					quantity: quantity,
+				},
+				create: {
 					userId,
 					productId,
 					quantity,
@@ -82,68 +80,24 @@ export class CartRepository implements ICart {
 		});
 	}
 
-	async updateItem(request: UpsertItem): Promise<unknown | Failure> {
-		const { userId, productId, quantity } = request;
-		return prisma.$transaction(async (prisma) => {
-			const product = await prisma.product.findUnique({
-				where: { id: productId },
-			});
-
-			if (!product) {
-				return {
-					errorCode: ErrorCode.NOT_FOUND,
-					message: "Product not found",
-				};
-			}
-
-			if (quantity > product.quantity) {
-				return {
-					errorCode: ErrorCode.BAD_REQUEST,
-					message: "Insufficient product quantity",
-				};
-			}
-
-			console.log(`Removing ${quantity} product ${productId} from cart`);
-			if (quantity === 0) {
-				const result = prisma.productInCart.delete({
-					where: {
-						userId_productId: {
-							userId,
-							productId,
-						},
-					},
-				});
-
-				if (!result) {
-					return {
-						errorCode: ErrorCode.NOT_FOUND,
-						message: "Product not found",
-					};
-				}
-
-				return result;
-			}
-
-			const result = prisma.productInCart.update({
+	async removeFromCart(
+		userId: string,
+		productId: string,
+	): Promise<unknown | Failure> {
+		try {
+			return await prisma.productInCart.delete({
 				where: {
 					userId_productId: {
 						userId,
 						productId,
 					},
 				},
-				data: {
-					quantity,
-				},
 			});
-
-			if (!result) {
-				return {
-					errorCode: ErrorCode.NOT_FOUND,
-					message: "Product not found",
-				};
-			}
-
-			return result;
-		});
+		} catch (error) {
+			return {
+				errorCode: ErrorCode.NOT_FOUND,
+				message: "Product not found in cart",
+			};
+		}
 	}
 }
