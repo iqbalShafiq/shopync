@@ -34,6 +34,12 @@ export class CartRepository implements ICart {
 
 	upsertItem(request: UpsertItem): Promise<unknown | Failure> {
 		const { userId, productId, quantity, increment } = request;
+
+		// Remove from cart if quantity is 0
+		if (quantity === 0) {
+			return this.removeFromCart(userId, productId);
+		}
+
 		return prisma.$transaction(async (prisma) => {
 			// Check if product exists
 			const product = await prisma.product.findUnique({
@@ -45,11 +51,6 @@ export class CartRepository implements ICart {
 					errorCode: ErrorCode.NOT_FOUND,
 					message: "Product not found",
 				};
-			}
-
-			// Remove from cart if quantity is 0
-			if (quantity === 0) {
-				return this.removeFromCart(userId, productId);
 			}
 
 			if (increment) {
