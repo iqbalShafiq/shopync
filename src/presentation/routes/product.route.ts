@@ -191,6 +191,21 @@ const productRoute = new Elysia({ prefix: "/products" })
 										price: { type: "number" },
 										quantity: { type: "number" },
 										userId: { type: "string" },
+										categories: {
+											type: "array",
+											items: {
+												type: "object",
+												properties: {
+													category: {
+														type: "object",
+														properties: {
+															id: { type: "string" },
+															name: { type: "string" },
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -245,6 +260,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				userId: (seller as User).id,
 				price: Number(body.price),
 				quantity: Number(body.quantity),
+				categories: JSON.parse(body.categories),
 			};
 			product.image = undefined;
 
@@ -283,6 +299,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				price: t.String(),
 				quantity: t.String(),
 				image: t.Optional(t.File()),
+				categories: t.String(),
 			}),
 		},
 	)
@@ -327,6 +344,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				quantity: Number(body.quantity),
 				imageUrl: imageUrl || null,
 				userId: (seller as User).id,
+				categories: JSON.parse(body.categories),
 			};
 			product.image = undefined;
 
@@ -403,6 +421,7 @@ const productRoute = new Elysia({ prefix: "/products" })
 				quantity: t.String(),
 				imageUrl: t.Optional(t.String()),
 				image: t.Optional(t.File()),
+				categories: t.String(),
 			}),
 		},
 	)

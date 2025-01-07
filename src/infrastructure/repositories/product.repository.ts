@@ -75,6 +75,11 @@ export class ProductRepository implements IProduct {
 			},
 			include: {
 				user: { select: { ...select, _count: true, password: false } },
+				categories: {
+					include: {
+						category: true,
+					},
+				},
 			},
 		});
 
@@ -142,20 +147,72 @@ export class ProductRepository implements IProduct {
 		};
 	}
 
-	create(product: UpsertProduct): Promise<Product> {
+	async create(product: UpsertProduct): Promise<Product> {
+		const { categories, ...productData } = product;
+
 		return prisma.product.create({
-			data: product,
+			data: {
+				...productData,
+				categories: {
+					create: categories.map((category) => ({
+						category: {
+							connectOrCreate: {
+								where: { name: category.name },
+								create: {
+									name: category.name,
+									description: category.description,
+								},
+							},
+						},
+					})),
+				},
+			},
+			include: {
+				categories: {
+					include: {
+						category: true,
+					},
+				},
+			},
 		});
 	}
 
+	// Update the update method:
 	async update(id: string, product: UpsertProduct): Promise<Product | Failure> {
 		try {
-			const updatedProps = getUpdatedProps(product);
+			const { categories, ...productData } = product;
+			const updatedProps = getUpdatedProps(productData);
+
+			// First delete existing category relationships
+			await prisma.productsOnCategories.deleteMany({
+				where: { productId: id },
+			});
+
 			return prisma.product.update({
-				where: {
-					id,
+				where: { id },
+				data: {
+					...updatedProps,
+					categories: {
+						create: categories.map((category) => ({
+							category: {
+								connectOrCreate: {
+									where: { name: category.name },
+									create: {
+										name: category.name,
+										description: category.description,
+									},
+								},
+							},
+						})),
+					},
 				},
-				data: updatedProps,
+				include: {
+					categories: {
+						include: {
+							category: true,
+						},
+					},
+				},
 			});
 		} catch (error) {
 			if (
@@ -164,7 +221,7 @@ export class ProductRepository implements IProduct {
 			) {
 				return {
 					errorCode: ErrorCode.NOT_FOUND,
-					message: "Note not found",
+					message: "Product not found",
 				};
 			}
 

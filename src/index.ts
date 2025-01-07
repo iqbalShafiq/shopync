@@ -4,6 +4,7 @@ import staticPlugin from "@elysiajs/static";
 import swagger from "@elysiajs/swagger";
 import authRoute from "./presentation/routes/auth.route";
 import cartRoute from "./presentation/routes/cart.route";
+import categoryRoute from "./presentation/routes/category.route";
 import productRoute from "./presentation/routes/product.route";
 
 const app = new Elysia()
@@ -20,6 +21,7 @@ const app = new Elysia()
 		}),
 	)
 	.use(authRoute)
+	.use(categoryRoute)
 	.use(productRoute)
 	.use(cartRoute)
 	.listen(8000);

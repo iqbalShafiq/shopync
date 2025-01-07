@@ -1,5 +1,6 @@
 import type { Prisma, Product, User } from "@prisma/client";
 import type { Failure } from "../utils/failure";
+import type { CategoryInput } from "./category";
 
 export type ProductQueryParams = {
 	sellerId: string;
@@ -16,6 +17,7 @@ export type UpsertProduct = {
 	userId: string;
 	description: string;
 	imageUrl: string | null;
+	categories: CategoryInput[];
 };
 
 export type UserWithCount = Omit<User, "password"> & {
