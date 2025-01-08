@@ -233,19 +233,27 @@ export class ProductRepository implements IProduct {
 	}
 
 	async delete(id: string): Promise<unknown | Failure> {
-		const product = await prisma.product.delete({
-			where: {
-				id,
-			},
-		});
+		try {
+			return await prisma.product.delete({
+				where: {
+					id,
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2025"
+			) {
+				return {
+					errorCode: ErrorCode.NOT_FOUND,
+					message: "Product not found",
+				};
+			}
 
-		if (!product) {
 			return {
-				errorCode: ErrorCode.NOT_FOUND,
-				message: "Product not found",
+				errorCode: ErrorCode.BAD_REQUEST,
+				message: "Bad request",
 			};
 		}
-
-		return product;
 	}
 }
