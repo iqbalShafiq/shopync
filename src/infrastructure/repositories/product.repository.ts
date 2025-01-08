@@ -100,9 +100,6 @@ export class ProductRepository implements IProduct {
 		params: ProductQueryParams,
 	): Promise<PaginatedResult<Product | Failure>> {
 		const { sellerId, search, limit, page, excludedProductId } = params;
-		console.log(
-			`sellerId: ${sellerId} | excludedProductId: ${excludedProductId}`,
-		);
 
 		const andClause = [];
 		andClause.push({
@@ -139,6 +136,8 @@ export class ProductRepository implements IProduct {
 
 		const total = await prisma.product.count({
 			where: whereClause,
+			take: limit || 10,
+			skip: (page || 0) * (limit || 10),
 		});
 
 		return {
