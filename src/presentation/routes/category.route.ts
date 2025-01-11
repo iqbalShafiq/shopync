@@ -1,6 +1,6 @@
 import bearer from "@elysiajs/bearer";
 import jwt from "@elysiajs/jwt";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import type { CategoryService } from "../../applications/services/category.service";
 import { container } from "../../infrastructure/ioc/container";
 import { TYPES } from "../../infrastructure/ioc/types";
@@ -67,6 +67,49 @@ const categoryRoute = new Elysia({ prefix: "/categories" })
 											id: { type: "string" },
 											name: { type: "string" },
 											description: { type: "string" },
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	)
+	.post(
+		"/",
+		async ({ body }) => {
+			const category = await categoryService.findOrCreate([body]);
+			return {
+				message: "Category created successfully",
+				data: category[0],
+			};
+		},
+		{
+			body: t.Object({
+				name: t.String(),
+				description: t.Optional(t.String()),
+			}),
+			detail: {
+				tags: ["Category"],
+				description: "Create new category",
+				responses: {
+					200: {
+						description: "Success",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										message: { type: "string" },
+										data: {
+											type: "object",
+											properties: {
+												id: { type: "string" },
+												name: { type: "string" },
+												description: { type: "string" },
+											},
 										},
 									},
 								},
