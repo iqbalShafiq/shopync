@@ -97,7 +97,7 @@
 
 <div id="api-endpoints">
   <h2>🔌 API Endpoints</h2>
-  <p>Base URL: <code>http://localhost:3000</code></p>
+  <p>Base URL: <code>http://localhost:8000</code></p>
 
   <h3>Authentication</h3>
   <table>
