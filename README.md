@@ -1,6 +1,6 @@
 
 <div align="center">
-  <h1>🛒 Shopync</h1>
+  <h1>🛍️ Shopync</h1>
   <p><i>A modern e-commerce backend built with ElysiaJS</i></p>
 
   <p>
@@ -249,12 +249,12 @@
   </ul>
 </div>
 
-<div id="footer" align="center">
-  <p>
-    <img src="https://img.shields.io/badge/Built_with_❤️_by-Iqbal_Shafiq-red?style=for-the-badge&logo=github" alt="Built with love"/>
-  </p>
-  <p>
-    <sub>As part of Devscale Indonesia cohort submission</sub><br>
-    <sub>Powered by Bun 🥟</sub>
+<div id="footer">
+  <hr>
+
+  <p align="left">
+    Built with ❤️ by <a href="https://github.com/iqbalShafiq">Shafiq</a>
+    <br>
+    <sub>As part of Devscale Indonesia cohort submission</sub>
   </p>
 </div>
