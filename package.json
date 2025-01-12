@@ -4,7 +4,7 @@
 	"scripts": {
 		"format": "bunx biome format src/ --fix",
 		"lint": "bunx biome lint src/",
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "bun test",
 		"start": "bun run src/index.ts",
 		"dev": "bun run --watch src/index.ts"
 	},
