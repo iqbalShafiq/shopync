@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy package files first
 COPY package*.json ./
+COPY .env ./.env
 COPY prisma ./prisma/
 
 # Install dependencies
@@ -14,6 +15,9 @@ RUN bunx prisma generate
 
 # Copy rest of the application
 COPY . .
+
+# Create uploads directory
+RUN mkdir -p public/uploads
 
 EXPOSE 8000
 
