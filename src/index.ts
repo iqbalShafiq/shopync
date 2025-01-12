@@ -10,9 +10,8 @@ import productRoute from "./presentation/routes/product.route";
 const app = new Elysia()
 	.use(
 		staticPlugin({
-			// Specify the directory to serve static files from
-			assets: "public", // folder yang berisi uploads
-			prefix: "/", // prefix URL untuk mengakses files
+			assets: "public",
+			prefix: "/",
 		}),
 	)
 	.use(

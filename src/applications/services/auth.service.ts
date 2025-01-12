@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import {password} from "bun";
 import { inject, injectable } from "inversify";
 import type {
 	IAuth,
@@ -19,8 +19,7 @@ export class AuthService {
 	}
 
 	async register(request: Register) {
-		const saltRounds = Number.parseInt(process.env.SALT_ROUNDS || "10");
-		const hashedPassword = await bcrypt.hash(request.password, saltRounds);
+		const hashedPassword = await password.hash(request.password);
 		return this.authRepository.register({
 			...request,
 			password: hashedPassword,

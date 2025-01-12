@@ -1,9 +1,9 @@
-import bcrypt from "bcrypt";
 import { injectable } from "inversify";
 import type { AuthResult, IAuth, Login, Register } from "../entities/auth";
 import ErrorCode from "../utils/errorCode";
 import type { Failure } from "../utils/failure";
 import { prisma } from "../utils/prisma";
+import { password } from "bun";
 
 @injectable()
 export class AuthRepository implements IAuth {
@@ -57,7 +57,10 @@ export class AuthRepository implements IAuth {
 			};
 		}
 
-		const passwordValid = await bcrypt.compare(request.password, user.password);
+		const passwordValid = await password.verify(
+			request.password,
+			user.password,
+		);
 		if (!passwordValid) {
 			return {
 				errorCode: ErrorCode.UNAUTHORIZED,
