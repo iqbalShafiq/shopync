@@ -3,6 +3,7 @@ import { type Category, Prisma, type Product } from "@prisma/client";
 import type { ProductQueryParams, UpsertProduct } from "../../entities/product";
 import ErrorCode from "../../utils/errorCode";
 import { ProductRepository } from "../product.repository";
+import TransactionClient = Prisma.TransactionClient;
 
 type MockPrismaProduct = Product & {
 	categories?: {
@@ -293,18 +294,40 @@ describe("ProductRepository", () => {
 				id: "cl1234567",
 			};
 
-			// Setup mock
-			const mockDelete = mock<() => Promise<MockPrismaProduct>>(
-				async () => mockDeletedProduct,
+			type TransactionClient = {
+				productsOnCategories: {
+					deleteMany: (params: { where: { productId: string } }) => Promise<{ count: number }>;
+				};
+				productInCart: {
+					deleteMany: (params: { where: { productId: string } }) => Promise<{ count: number }>;
+				};
+				product: {
+					delete: (params: { where: { id: string } }) => Promise<MockPrismaProduct>;
+				};
+			};
+
+			// Setup mocks for transaction
+			const mockTransaction = mock<
+				<T>(callback: (tx: TransactionClient) => Promise<T>) => Promise<T>
+			>(
+				async (callback) => callback({
+					productsOnCategories: {
+						deleteMany: async () => ({ count: 1 })
+					},
+					productInCart: {
+						deleteMany: async () => ({ count: 1 })
+					},
+					product: {
+						delete: async () => mockDeletedProduct
+					}
+				})
 			);
 
-			// Override prisma mock
+			// Override prisma mock with transaction support
 			mock.module("../../../infrastructure/utils/prisma", () => ({
 				prisma: {
-					product: {
-						delete: mockDelete,
-					},
-				},
+					$transaction: mockTransaction
+				}
 			}));
 
 			// Execute and assert
@@ -314,21 +337,23 @@ describe("ProductRepository", () => {
 		});
 
 		test("should handle product not found on delete", async () => {
-			// Setup mock to throw error
-			const mockDelete = mock<() => Promise<MockPrismaProduct>>(() => {
-				throw new Prisma.PrismaClientKnownRequestError("Record not found", {
-					code: "P2025",
-					clientVersion: "5.0.0",
-				});
-			});
+			// Setup mock to throw error during transaction
+			const mockTransaction = mock<
+				<T>(callback: (tx: TransactionClient) => Promise<T>) => Promise<T>
+			>(
+				async () => {
+					throw new Prisma.PrismaClientKnownRequestError("Record not found", {
+						code: "P2025",
+						clientVersion: "5.0.0",
+					});
+				}
+			);
 
 			// Override prisma mock
 			mock.module("../../../infrastructure/utils/prisma", () => ({
 				prisma: {
-					product: {
-						delete: mockDelete,
-					},
-				},
+					$transaction: mockTransaction
+				}
 			}));
 
 			// Execute and assert
@@ -336,6 +361,33 @@ describe("ProductRepository", () => {
 
 			expect(result).toHaveProperty("errorCode", ErrorCode.NOT_FOUND);
 			expect(result).toHaveProperty("message", "Product not found");
+		});
+
+		test("should handle cascade deletion errors", async () => {
+			// Setup mock to throw a foreign key constraint error
+			const mockTransaction = mock<
+				<T>(callback: (tx: TransactionClient) => Promise<T>) => Promise<T>
+			>(
+				async () => {
+					throw new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed", {
+						code: "P2003",
+						clientVersion: "5.0.0",
+					});
+				}
+			);
+
+			// Override prisma mock
+			mock.module("../../../infrastructure/utils/prisma", () => ({
+				prisma: {
+					$transaction: mockTransaction
+				}
+			}));
+
+			// Execute and assert
+			const result = await productRepository.delete("cl1234567");
+
+			expect(result).toHaveProperty("errorCode", ErrorCode.BAD_REQUEST);
+			expect(result).toHaveProperty("message", expect.stringContaining("Database error"));
 		});
 	});
 });

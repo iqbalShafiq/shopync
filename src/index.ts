@@ -12,6 +12,13 @@ const app = new Elysia()
 		staticPlugin({
 			assets: "public",
 			prefix: "/",
+			headers: {
+				'.jpg': 'image/jpeg',
+				'.jpeg': 'image/jpeg',
+				'.png': 'image/png',
+				'.gif': 'image/gif',
+				'.webp': 'image/webp'
+			},
 			alwaysStatic: true
 		}),
 	)
