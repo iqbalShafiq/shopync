@@ -12,6 +12,7 @@ const app = new Elysia()
 		staticPlugin({
 			assets: "public",
 			prefix: "/",
+			alwaysStatic: true
 		}),
 	)
 	.use(
