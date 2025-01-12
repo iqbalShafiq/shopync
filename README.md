@@ -87,6 +87,10 @@
   # Install dependencies
   bun install
 
+  # Create environment variables file
+  cp .env.example .env
+  # Edit the .env file with your configuration
+
   # Run database migrations
   bunx prisma migrate dev
 
